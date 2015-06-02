@@ -43,6 +43,7 @@ import java.util.Collection;
  */
 public class Job {
 
+        //reader config
 	public static DataSet<Tuple2<BSONWritable, BSONWritable>> readFromMongo(ExecutionEnvironment env, String uri) {
 		JobConf conf = new JobConf();
 		conf.set("mongo.input.uri", uri);
@@ -50,6 +51,7 @@ public class Job {
 		return env.createHadoopInput(mongoInputFormat, BSONWritable.class, BSONWritable.class, conf);
 	}
 
+        //writer config
 	public static void writeToMongo(DataSet<Tuple2<BSONWritable, BSONWritable>> result, String uri) {
 		JobConf conf = new JobConf();
 		conf.set("mongo.output.uri", uri);
@@ -74,6 +76,7 @@ public class Job {
                 final String resultSink = "world15.result";
 
 
+                //get points and centroids as bsonWritables
 		DataSet<Tuple2<BSONWritable, BSONWritable>> inPoints = readFromMongo(env, mongoInputUri + pointsSource); //points
 		DataSet<Tuple2<BSONWritable, BSONWritable>> inCenters = readFromMongo(env, mongoInputUri + centerSource); //centers
 
@@ -82,7 +85,11 @@ public class Job {
 		DataSet<Point> points = convertToPointSet(inPoints);
 		DataSet<Centroid> centroids = convertToCentroidSet(inCenters);
 
-		// set number of bulk iterations for KMeans algorithm
+
+                /*
+                * !!     Main SECTION
+                */
+                // set number of bulk iterations for KMeans algorithm
 		IterativeDataSet<Centroid> loop = centroids.iterate(iterations);
 
 		DataSet<Centroid> newCentroids = points
@@ -100,9 +107,14 @@ public class Job {
 		DataSet<Tuple2<Integer, Point>> clusteredPoints = points
 				// assign points to final clusters
 				.map(new SelectNearestCenter()).withBroadcastSet(finalCentroids, "centroids");
+                
+                /*
+                * !!     Main SECTION ENDS
+                */
 
+                //convert set to BSON
 		DataSet<Tuple2<BSONWritable, BSONWritable>> mongoResult = convertResultToBSON(clusteredPoints);
-		
+		//write to Mongo
                 writeToMongo(mongoResult, mongoInputUri + resultSink);
 
 		// execute program
