@@ -61,6 +61,11 @@ public class Job {
 		// set up the execution environment
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
                 
+                int iterations = 10;
+                if(args.length > 0) {
+                    iterations = Integer.valueOf(args[0]);
+                }
+                
                 
                 //set Mongo vars:
                 final String mongoInputUri = "mongodb://localhost:27017/";
@@ -78,7 +83,7 @@ public class Job {
 		DataSet<Centroid> centroids = convertToCentroidSet(inCenters);
 
 		// set number of bulk iterations for KMeans algorithm
-		IterativeDataSet<Centroid> loop = centroids.iterate(10);
+		IterativeDataSet<Centroid> loop = centroids.iterate(iterations);
 
 		DataSet<Centroid> newCentroids = points
 				// compute closest centroid for each point
