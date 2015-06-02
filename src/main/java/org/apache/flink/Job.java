@@ -144,7 +144,6 @@ public class Job {
 		return in.map(new MapFunction<Tuple2<BSONWritable, BSONWritable>, Centroid>() {
 			@Override
 			public Centroid map(Tuple2<BSONWritable, BSONWritable> bsonWritableBSONWritableTuple2) throws Exception {
-                            System.out.println(bsonWritableBSONWritableTuple2.toString());
                                 BSONWritable bvalue = bsonWritableBSONWritableTuple2.getField(1);
                                 Object value = bvalue.getDoc();
                                 BasicDBObject centroid = (BasicDBObject) value;
