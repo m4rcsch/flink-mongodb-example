@@ -60,10 +60,17 @@ public class Job {
 	public static void main(String[] args) throws Exception {
 		// set up the execution environment
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+                
+                
+                //set Mongo vars:
+                final String mongoInputUri = "mongodb://localhost:27017/";
+                final String pointsSource = "world15.points";
+                final String centerSource = "world15.centers";
+                final String resultSink = "world15.result";
 
 
-		DataSet<Tuple2<BSONWritable, BSONWritable>> inPoints = readFromMongo(env, "mongodb://localhost:27017/world15.points"); //points
-		DataSet<Tuple2<BSONWritable, BSONWritable>> inCenters = readFromMongo(env, "mongodb://localhost:27017/world15.centers"); //centers
+		DataSet<Tuple2<BSONWritable, BSONWritable>> inPoints = readFromMongo(env, mongoInputUri + pointsSource); //points
+		DataSet<Tuple2<BSONWritable, BSONWritable>> inCenters = readFromMongo(env, mongoInputUri + centerSource); //centers
 
 
 		// get input data
@@ -90,7 +97,8 @@ public class Job {
 				.map(new SelectNearestCenter()).withBroadcastSet(finalCentroids, "centroids");
 
 		DataSet<Tuple2<BSONWritable, BSONWritable>> mongoResult = convertResultToBSON(clusteredPoints);
-		writeToMongo(mongoResult, "mongodb://localhost:27017/world15.result");
+		
+                writeToMongo(mongoResult, mongoInputUri + resultSink);
 
 		// execute program
 		env.execute("KMeans Example");
