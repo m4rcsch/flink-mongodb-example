@@ -87,7 +87,9 @@ public class Job {
 
 
                 /*
+                *
                 * !!     Main SECTION
+                *
                 */
                 // set number of bulk iterations for KMeans algorithm
 		IterativeDataSet<Centroid> loop = centroids.iterate(iterations);
@@ -121,6 +123,7 @@ public class Job {
 		env.execute("KMeans Example");
 	}
 
+        //converting back to BSON
 	public static DataSet<Tuple2<BSONWritable, BSONWritable>> convertResultToBSON(DataSet<Tuple2<Integer, Point>> in) {
 		return in.map(new MapFunction<Tuple2<Integer, Point>, Tuple2<BSONWritable, BSONWritable>>() {
 			@Override
@@ -149,6 +152,7 @@ public class Job {
 		});
 	}
 
+        //converting BSON Point to SET
 	public static DataSet<Point> convertToPointSet(DataSet<Tuple2<BSONWritable, BSONWritable>> in) {
 		return in.map(new MapFunction<Tuple2<BSONWritable, BSONWritable>, Point>() {
 			@Override
@@ -165,6 +169,7 @@ public class Job {
 		});
 	}
 
+        //converting BSON Centroids
 	public static DataSet<Centroid> convertToCentroidSet(DataSet<Tuple2<BSONWritable, BSONWritable>> in) {
 		return in.map(new MapFunction<Tuple2<BSONWritable, BSONWritable>, Centroid>() {
 			@Override
