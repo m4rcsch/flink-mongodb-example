@@ -61,8 +61,8 @@ public class Job {
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
 
-		DataSet<Tuple2<BSONWritable, BSONWritable>> inPoints = readFromMongo(env, "mongodb://localhost:27017/points");
-		DataSet<Tuple2<BSONWritable, BSONWritable>> inCenters = readFromMongo(env, "mongodb://localhost:27017/centers");
+		DataSet<Tuple2<BSONWritable, BSONWritable>> inPoints = readFromMongo(env, "mongodb://localhost:27017/world15.points"); //points
+		DataSet<Tuple2<BSONWritable, BSONWritable>> inCenters = readFromMongo(env, "mongodb://localhost:27017/world15.centers"); //centers
 
 
 		// get input data
@@ -89,7 +89,7 @@ public class Job {
 				.map(new SelectNearestCenter()).withBroadcastSet(finalCentroids, "centroids");
 
 		DataSet<Tuple2<BSONWritable, BSONWritable>> mongoResult = convertResultToBSON(clusteredPoints);
-		writeToMongo(mongoResult, "mongodb://localhost:27017/result");
+		writeToMongo(mongoResult, "mongodb://localhost:27017/world15.result");
 
 		// execute program
 		env.execute("KMeans Example");
@@ -99,7 +99,7 @@ public class Job {
 		return in.map(new MapFunction<Tuple2<Integer, Point>, Tuple2<BSONWritable, BSONWritable>>() {
 			@Override
 			public Tuple2<BSONWritable, BSONWritable> map(Tuple2<Integer, Point> integerPointTuple2) throws Exception {
-				return new Tuple2<BSONWritable, BSONWritable>(null, null); /* TODO */
+				return new Tuple2<BSONWritable, BSONWritable>(null, null); /* TODO writer*/
 			}
 		});
 	}
