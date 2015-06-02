@@ -100,7 +100,25 @@ public class Job {
 		return in.map(new MapFunction<Tuple2<Integer, Point>, Tuple2<BSONWritable, BSONWritable>>() {
 			@Override
 			public Tuple2<BSONWritable, BSONWritable> map(Tuple2<Integer, Point> integerPointTuple2) throws Exception {
-                                return new Tuple2();
+                                Integer id = integerPointTuple2.f0;
+                                Point point = integerPointTuple2.f1;
+                                //System.out.println("!!    New Controid: " + id + " : coords" + point.toString());
+                                
+                                BasicDBObject idDoc = new BasicDBObject();
+                                idDoc.put("_id", id);
+                                BSONWritable bsonId = new BSONWritable();
+                                bsonId.setDoc(idDoc);
+                                
+                                
+                                BasicDBObject doc = new BasicDBObject();
+                                doc.put("_id", id);
+                                doc.put("x", point.x);
+                                doc.put("y", point.y);
+                                BSONWritable bsonDoc = new BSONWritable();
+                                bsonDoc.setDoc(doc);
+                                //System.out.println("!!    New Controid Doc: " + bsonDoc.toString());
+                                
+                                return new Tuple2(bsonId,bsonDoc);
 				//return new Tuple2<BSONWritable, BSONWritable>(null, null); /* TODO writer*/
 			}
 		});
@@ -126,6 +144,7 @@ public class Job {
 		return in.map(new MapFunction<Tuple2<BSONWritable, BSONWritable>, Centroid>() {
 			@Override
 			public Centroid map(Tuple2<BSONWritable, BSONWritable> bsonWritableBSONWritableTuple2) throws Exception {
+                            System.out.println(bsonWritableBSONWritableTuple2.toString());
                                 BSONWritable bvalue = bsonWritableBSONWritableTuple2.getField(1);
                                 Object value = bvalue.getDoc();
                                 BasicDBObject centroid = (BasicDBObject) value;
