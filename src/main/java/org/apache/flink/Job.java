@@ -18,6 +18,7 @@ package org.apache.flink;
  * limitations under the License.
  */
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.hadoop.io.BSONWritable;
 import com.mongodb.hadoop.mapred.MongoInputFormat;
 import com.mongodb.hadoop.mapred.MongoOutputFormat;
@@ -99,7 +100,8 @@ public class Job {
 		return in.map(new MapFunction<Tuple2<Integer, Point>, Tuple2<BSONWritable, BSONWritable>>() {
 			@Override
 			public Tuple2<BSONWritable, BSONWritable> map(Tuple2<Integer, Point> integerPointTuple2) throws Exception {
-				return new Tuple2<BSONWritable, BSONWritable>(null, null); /* TODO writer*/
+                                return new Tuple2();
+				//return new Tuple2<BSONWritable, BSONWritable>(null, null); /* TODO writer*/
 			}
 		});
 	}
@@ -108,7 +110,14 @@ public class Job {
 		return in.map(new MapFunction<Tuple2<BSONWritable, BSONWritable>, Point>() {
 			@Override
 			public Point map(Tuple2<BSONWritable, BSONWritable> bsonWritableBSONWritableTuple2) throws Exception {
-				return new Point( /* TODO */);
+                                BSONWritable bvalue = bsonWritableBSONWritableTuple2.getField(1);
+                                Object value = bvalue.getDoc();
+                                BasicDBObject point = (BasicDBObject) value;
+                                String id =  point.getObjectId("_id").toString();
+                                Double x = (Double) point.get("x");
+                                Double y = (Double) point.get("y");
+                                //System.out.println("Point: " + id + " : " + x.toString() + " " + y.toString());
+				return new Point(x,y);
 			}
 		});
 	}
@@ -117,7 +126,14 @@ public class Job {
 		return in.map(new MapFunction<Tuple2<BSONWritable, BSONWritable>, Centroid>() {
 			@Override
 			public Centroid map(Tuple2<BSONWritable, BSONWritable> bsonWritableBSONWritableTuple2) throws Exception {
-				return new Centroid( /* TODO */);
+                                BSONWritable bvalue = bsonWritableBSONWritableTuple2.getField(1);
+                                Object value = bvalue.getDoc();
+                                BasicDBObject centroid = (BasicDBObject) value;
+                                Integer id = (Integer) centroid.get("_id");
+                                Double x = (Double) centroid.get("x");
+                                Double y = (Double) centroid.get("y");
+                                //System.out.println("Centroid: " + id.toString() + " : " + x.toString() + " " + y.toString());
+				return new Centroid(id,x,y);
 			}
 		});
 	}
